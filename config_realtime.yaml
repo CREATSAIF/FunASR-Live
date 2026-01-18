@@ -11,10 +11,10 @@ max_record_duration: 30
 min_record_duration: 0.5
 model_hub: ms
 model_name: FunAudioLLM/Fun-ASR-Nano-2512
-output_mode: clipboard
+output_mode: both
 sample_rate: 16000
-silence_duration: 0.8
-silence_threshold: 0.019
+silence_duration: 0.3
+silence_threshold: 0.005
 sleep_words:
 - 停止听写
 - 结束输入

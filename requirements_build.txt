@@ -1,0 +1,18 @@
+# Build requirements for PyInstaller packaging
+pyinstaller>=6.0.0
+pillow>=10.0.0
+
+# Core dependencies
+funasr>=1.0.0
+torch>=2.0.0
+torchaudio>=2.0.0
+sounddevice>=0.4.6
+numpy>=1.21.0
+PyYAML>=6.0
+pynput>=1.7.6
+pyperclip>=1.8.2
+PyQt5>=5.15.0
+fastapi>=0.100.0
+uvicorn>=0.22.0
+websockets>=11.0
+modelscope>=1.9.0

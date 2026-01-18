@@ -1,0 +1,22 @@
+model_name: FunAudioLLM/Fun-ASR-Nano-2512
+model_hub: ms
+use_vad: true
+vad_model: fsmn-vad
+vad_max_segment_time: 30000
+device: auto
+dtype: fp16
+sample_rate: 16000
+channels: 1
+chunk_duration: 0.5
+hotkey_start_stop: ctrl+alt+r
+hotkey_cancel: escape
+output_mode: both
+type_delay: 0.01
+language: 中文
+itn: true
+hotwords:
+- shiro
+api_enabled: true
+api_host: 127.0.0.1
+api_port: 8765
+audio_device: 1

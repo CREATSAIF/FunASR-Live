@@ -1,0 +1,355 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install funasr modelscope sounddevice numpy PyYAML pynput pyperclip PyQt5 fastapi uvicorn websockets
+
+      - name: Build GUI executable
+        run: |
+          pyinstaller --onefile --windowed --name FunASR-GUI `
+            --add-data "config_realtime.yaml;." `
+            --add-data "model.py;." `
+            --hidden-import funasr `
+            --hidden-import torch `
+            --hidden-import torchaudio `
+            --hidden-import sounddevice `
+            --hidden-import PyQt5 `
+            --hidden-import yaml `
+            --hidden-import numpy `
+            --hidden-import modelscope `
+            realtime_gui.py
+
+      - name: Build CLI executable
+        run: |
+          pyinstaller --onefile --name FunASR-Live `
+            --add-data "config.yaml;." `
+            --add-data "model.py;." `
+            --hidden-import funasr `
+            --hidden-import torch `
+            --hidden-import torchaudio `
+            --hidden-import sounddevice `
+            --hidden-import pynput `
+            --hidden-import yaml `
+            --hidden-import numpy `
+            --hidden-import modelscope `
+            funasr_live.py
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release
+          cp dist/FunASR-GUI.exe release/
+          cp dist/FunASR-Live.exe release/
+          cp config.yaml release/
+          cp config_realtime.yaml release/
+          cp model.py release/
+          cp README.md release/
+          Compress-Archive -Path release/* -DestinationPath FunASR-Live-Windows-x64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FunASR-Live-Windows-x64
+          path: FunASR-Live-Windows-x64.zip
+
+  build-macos-intel:
+    runs-on: macos-13
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          brew install portaudio
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install torch torchvision torchaudio
+          pip install funasr modelscope sounddevice numpy PyYAML pynput pyperclip PyQt5 fastapi uvicorn websockets
+
+      - name: Build GUI executable
+        run: |
+          pyinstaller --onefile --windowed --name FunASR-GUI \
+            --add-data "config_realtime.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import PyQt5 \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            --osx-bundle-identifier com.creatsaif.funasr-gui \
+            realtime_gui.py
+
+      - name: Build CLI executable
+        run: |
+          pyinstaller --onefile --name FunASR-Live \
+            --add-data "config.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import pynput \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            funasr_live.py
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release
+          cp dist/FunASR-GUI release/
+          cp dist/FunASR-Live release/
+          cp config.yaml release/
+          cp config_realtime.yaml release/
+          cp model.py release/
+          cp README.md release/
+          cd release && zip -r ../FunASR-Live-macOS-Intel.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FunASR-Live-macOS-Intel
+          path: FunASR-Live-macOS-Intel.zip
+
+  build-macos-arm:
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          brew install portaudio
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install torch torchvision torchaudio
+          pip install funasr modelscope sounddevice numpy PyYAML pynput pyperclip PyQt5 fastapi uvicorn websockets
+
+      - name: Build GUI executable
+        run: |
+          pyinstaller --onefile --windowed --name FunASR-GUI \
+            --add-data "config_realtime.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import PyQt5 \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            --osx-bundle-identifier com.creatsaif.funasr-gui \
+            realtime_gui.py
+
+      - name: Build CLI executable
+        run: |
+          pyinstaller --onefile --name FunASR-Live \
+            --add-data "config.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import pynput \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            funasr_live.py
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release
+          cp dist/FunASR-GUI release/
+          cp dist/FunASR-Live release/
+          cp config.yaml release/
+          cp config_realtime.yaml release/
+          cp model.py release/
+          cp README.md release/
+          cd release && zip -r ../FunASR-Live-macOS-AppleSilicon.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FunASR-Live-macOS-AppleSilicon
+          path: FunASR-Live-macOS-AppleSilicon.zip
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y portaudio19-dev libasound2-dev libxcb-xinerama0
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install funasr modelscope sounddevice numpy PyYAML pynput pyperclip PyQt5 fastapi uvicorn websockets
+
+      - name: Build GUI executable
+        run: |
+          pyinstaller --onefile --name FunASR-GUI \
+            --add-data "config_realtime.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import PyQt5 \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            realtime_gui.py
+
+      - name: Build CLI executable
+        run: |
+          pyinstaller --onefile --name FunASR-Live \
+            --add-data "config.yaml:." \
+            --add-data "model.py:." \
+            --hidden-import funasr \
+            --hidden-import torch \
+            --hidden-import torchaudio \
+            --hidden-import sounddevice \
+            --hidden-import pynput \
+            --hidden-import yaml \
+            --hidden-import numpy \
+            --hidden-import modelscope \
+            funasr_live.py
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release
+          cp dist/FunASR-GUI release/
+          cp dist/FunASR-Live release/
+          cp config.yaml release/
+          cp config_realtime.yaml release/
+          cp model.py release/
+          cp README.md release/
+          cd release && tar -czvf ../FunASR-Live-Linux-x64.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FunASR-Live-Linux-x64
+          path: FunASR-Live-Linux-x64.tar.gz
+
+  create-release:
+    needs: [build-windows, build-macos-intel, build-macos-arm, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: FunASR Live ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## FunASR Live ${{ steps.version.outputs.VERSION }}
+            
+            实时语音识别工具，基于阿里巴巴 FunASR 模型。
+            
+            ### 功能特性
+            - 🎤 实时语音识别
+            - ⌨️ 快捷键触发录音
+            - 📋 自动复制到剪贴板
+            - 🖥️ 模拟键盘输入
+            - 🔔 唤醒词支持
+            - 🌐 API 接口
+            
+            ### 下载说明
+            - **Windows**: `FunASR-Live-Windows-x64.zip`
+            - **macOS (Intel)**: `FunASR-Live-macOS-Intel.zip`
+            - **macOS (Apple Silicon)**: `FunASR-Live-macOS-AppleSilicon.zip`
+            - **Linux**: `FunASR-Live-Linux-x64.tar.gz`
+            
+            ### 使用方法
+            1. 下载对应平台的压缩包
+            2. 解压到任意目录
+            3. 运行 `FunASR-GUI` (GUI版本) 或 `FunASR-Live` (命令行版本)
+            4. 首次运行会自动下载模型
+            
+            ### 注意事项
+            - macOS 用户需要授予麦克风和辅助功能权限
+            - Windows 用户可能需要以管理员身份运行
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/FunASR-Live-Windows-x64/FunASR-Live-Windows-x64.zip
+            artifacts/FunASR-Live-macOS-Intel/FunASR-Live-macOS-Intel.zip
+            artifacts/FunASR-Live-macOS-AppleSilicon/FunASR-Live-macOS-AppleSilicon.zip
+            artifacts/FunASR-Live-Linux-x64/FunASR-Live-Linux-x64.tar.gz

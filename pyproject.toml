@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "funasr-live"
+version = "1.0.0"
+description = "实时语音识别工具，支持快捷键触发、连续识别、剪贴板输出"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "CREATSAIF"}
+]
+keywords = ["speech recognition", "ASR", "FunASR", "voice input", "real-time"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+
+[project.urls]
+Homepage = "https://github.com/CREATSAIF/FunASR-Live"
+Repository = "https://github.com/CREATSAIF/FunASR-Live"
+Issues = "https://github.com/CREATSAIF/FunASR-Live/issues"
+
+[project.scripts]
+funasr-live = "funasr_live:main"
+funasr-realtime = "funasr_realtime:main"
+
+[project.gui-scripts]
+funasr-gui = "realtime_gui:main"
+funasr-settings = "settings_gui:main"
+
+[tool.setuptools]
+packages = ["."]

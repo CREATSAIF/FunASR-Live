@@ -1,0 +1,26 @@
+api_enabled: true
+api_port: 8765
+audio_device: 1
+auto_punctuation: true
+channels: 1
+hotkey_force: ctrl+alt+f
+hotkey_toggle: ctrl+alt+r
+hotwords: []
+language: 中文
+max_record_duration: 30
+min_record_duration: 0.5
+model_hub: ms
+model_name: FunAudioLLM/Fun-ASR-Nano-2512
+output_mode: clipboard
+sample_rate: 16000
+silence_duration: 0.8
+silence_threshold: 0.019
+sleep_words:
+- 停止听写
+- 结束输入
+- 休息一下
+wake_word_enabled: false
+wake_words:
+- shiro
+- 开始听写
+- 语音输入
